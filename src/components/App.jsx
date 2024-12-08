@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { ImageGallery } from "./image-gallery/ImageGallery.jsx";
 import fetchImages from "../api/unsplashApi.js";
 import toast from "react-hot-toast";
-import { MagnifyingGlass } from "react-loader-spinner";
 import { LoadMoreBtn } from "./load-more-btn/LoadMoreBtn.jsx";
 import ImageModal from "./image-modal/ImageModal.jsx";
+import { Loader } from "./loader/Loader.jsx";
+import { ErrorMessage } from "./error-message/ErrorMessage.jsx";
 
 export default function App() {
     const [query, setQuery] = useState("");
@@ -29,7 +30,14 @@ export default function App() {
 
     const closeModal = () => setImageUrl("");
 
-    const handleLoadMore = () => setPage((prev) => prev + 1);
+    const handleLoadMore = () => {
+        if (!isBtnVisible) return;
+        setPage((prev) => prev + 1);
+    };
+
+    const handlePerPageCalculation = (perPageInfo) => {
+        setPerPage(perPageInfo);
+    };
 
     const handleImageClick = url => {
         if (!url) return;
@@ -64,11 +72,11 @@ export default function App() {
 
     return (
         <div id="app">
-            <Searchbar onSubmit={handleQuery} setImagesInRow={setPerPage}/>
+            <Searchbar onSubmit={handleQuery} setImagesInRow={handlePerPageCalculation}/>
             {images.length > 0 && <ImageGallery images={images} onClick={handleImageClick}/>}
             {isBtnVisible && <LoadMoreBtn onClick={handleLoadMore}>Load more</LoadMoreBtn>}
-            {isLoading && <MagnifyingGlass/>}
-            {error && <h3>{error}</h3>}
+            {isLoading && <Loader/>}
+            {error && <ErrorMessage message={error}/>}
             <ImageModal closeModal={closeModal} imageUrl={imageUrl}/>
         </div>
     );
